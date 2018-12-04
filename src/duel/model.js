@@ -5,9 +5,9 @@ class DuelModel {
     this.enemyPirateTimer = null
     this.enemyPirateDead = false
 
-    this.pacesTimer = null
-    this.pacesText = null
-    this.paces = 1
+    this.paceTimer = null
+    this.paceText = null
+    this.pace = 1
 
     this.duelTimer = null
     this.timeDelay = null

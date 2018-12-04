@@ -14,6 +14,9 @@ class DuelController {
   }
 
   startPacesCounter () {
+    // this.model.paceTimer = this.game.time.create(false)
+    // this.model.paceTimer.repeat(500, 10, this.updatePacesCounter, this)
+    // this.paceTimer.start()
     const paces = this.model.paces
     this.view.renderPacesCounter(paces)
     setInterval(() => {
@@ -30,8 +33,6 @@ class DuelController {
 
   startDuelShowdown () {
     if(this.model.duelTimer === 5) {
-      console.log("after if")
-
       this.model.setTimeDelay
       this.model.timeDelay
       setTimeout(this.view.renderDraw, this.model.timeDelay)
@@ -43,4 +44,3 @@ class DuelController {
     this.updatePacesCounter = this.updatePacesCounter.bind(this)
   }
 }
-
