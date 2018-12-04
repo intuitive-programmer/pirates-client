@@ -50,7 +50,7 @@ const clickAndSignup = (input) => {
     .then(newUser => {
       state.currentUser = newUser
       console.log(newUser)
-      // startGame
+      // startGame()
   })
 }
 
