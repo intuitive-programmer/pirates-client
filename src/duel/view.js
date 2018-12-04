@@ -16,7 +16,17 @@ class DuelView {
     pacesTimerDiv.innerText = `Paces: ${paces}`
   }
 
-  bindMethods () {
+  renderDraw() {
+    this.containerDiv.innerHTML = ''
+    const drawAlertDiv = document.createElement('div')
+    drawAlertDiv.id = "draw-alert"
+    drawAlertDiv.innerText = "DRAW"
+    this.containerDiv.appendChild(drawAlertDiv)
+  }
 
+  bindMethods () {
+    this.renderPacesCounter = this.renderPacesCounter.bind(this)
+    this.updatePacesCounter = this.updatePacesCounter.bind(this)
+    this.renderDraw = this.renderDraw.bind(this)
   }
 }

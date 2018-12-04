@@ -9,11 +9,18 @@ class DuelModel {
     this.pacesText = null
     this.paces = 1
 
+    this.duelTimer = null
+    this.timeDelay = null
+
     this.shotAt = 0
 
     this.reactionTimeMin = 100
     this.reactionTimeMax = 500
     this.bindMethods()
+  }
+
+  setTimeDelay () {
+    this.timeDelay = Math.random()*5
   }
 
   bindMethods () {
