@@ -38,14 +38,14 @@ const postUserScore = (data) =>
 
 
 const scoreBoard = document.querySelector('#scoreboard')
-let currentScore = 41
+let CURRENTSCORE = 0
 
 const renderForm = () => {
     const scoreForm = document.createElement('div')
     scoreForm.id = 'scoreForm'
 
     const scoreFormContent = document.createElement('h3')
-    scoreFormContent.innerHTML = `50 points!`
+    scoreFormContent.innerHTML = CURRENTSCORE
 
     const cardForm = document.createElement('form')
     cardForm.id = 'cardForm'
@@ -72,7 +72,7 @@ const renderForm = () => {
 
     const createScore = (user) => {
         const score = {
-            points: currentScore
+            points: CURRENTSCORE
         }
         postScore(score)
             .then(resp => resp.json())
@@ -157,6 +157,4 @@ const renderScoreBoard = () => {
     fetchScores()
         .then(sortByScores)
 }
-
-renderForm()
 

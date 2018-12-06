@@ -1,16 +1,16 @@
 .container {
     min-width: 100vw;
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+   
+    /* align-items: center;
+    justify-content: center; */
 }
 
 #scoreboard {
     -webkit-box-shadow: 8px 10px 20px -2px rgba(194, 194, 194, 1);
     -moz-box-shadow: 8px 10px 20px -2px rgba(194, 194, 194, 1);
     box-shadow: 8px 10px 20px -2px rgba(194, 194, 194, 1);
-    display: flex;
+    position: absolute;
     min-width: 50%;
     padding: 20px;
     margin: 20px;
@@ -18,7 +18,7 @@
 }
 
 #canvas {
-    display: flex;
+    display: block;
 }
 
 .table {
