@@ -1,5 +1,5 @@
-const scoreBoard = document.querySelector('#scoreboard')
 
+// APIs
 const fetchUsers = () =>
     fetch('http://localhost:3000/api/v1/users')
     .then(resp => resp.json())
@@ -8,7 +8,7 @@ const fetchScores = () =>
     fetch('http://localhost:3000/api/v1/scores')
     .then(resp => resp.json())
 
-const postUser = (user) => {
+const postUser = (user) => 
     fetch('http://localhost:3000/api/v1/users', {
         method: 'POST',
         headers: {
@@ -17,12 +17,91 @@ const postUser = (user) => {
         body: JSON.stringify(user)
     })
 
+const postScore = (score) =>
+    fetch('http://localhost:3000/api/v1/scores', {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(score)
+    })
+
+const postUserScore = (data) =>
+    fetch('http://localhost:3000/api/v1/userscores', {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    })
+
+
+
+const scoreBoard = document.querySelector('#scoreboard')
+let currentScore = 41
+
+const renderForm = () => {
+    const scoreForm = document.createElement('div')
+    scoreForm.id = 'scoreForm'
+
+    const scoreFormContent = document.createElement('h3')
+    scoreFormContent.innerHTML = `50 points!`
+
+    const cardForm = document.createElement('form')
+    cardForm.id = 'cardForm'
+    cardForm.innerHTML = `
+        <div class="form-group">
+            <label for="inputName" class="sr-only">Name</label>
+            <input type="text" class="form-control" id="inputName" placeholder="Name">
+        </div>
+        <button type="submit" class="btn btn-success">Submit</button>
+    `
+
+    cardForm.addEventListener('submit', event => {
+        event.preventDefault()
+
+        nameInput = cardForm.querySelector('input')
+        user = {
+            username: nameInput.value,
+        }
+        postUser(user)
+            .then(resp => resp.json())
+            .then(createScore)
+
+    })
+
+    const createScore = (user) => {
+        const score = {
+            points: currentScore
+        }
+        postScore(score)
+            .then(resp => resp.json())
+            .then(score => createRelation(score, user))
+    }
+
+    const createRelation = (score, user) => {
+        const data = {
+            user_id: user.id,
+            score_id: score.id
+        }
+        postUserScore(data)
+            .then(resp => resp.json())
+            .then(() => renderScoreBoard())
+    }
+
+    scoreForm.appendChild(scoreFormContent)
+    scoreForm.appendChild(cardForm)
+    scoreBoard.appendChild(scoreForm)
+}
+
+const clearScoreBoard = () => {
+    scoreBoard.innerHTML = ''
 }
 
 
 const renderTable = () => {
     const table = document.createElement('table')
-    table.className = 'table'
+    table.className = 'table flexItem'
     table.id = 'table'
     table.innerHTML = `
     
@@ -55,9 +134,6 @@ const renderRow = (user, scoreBoard) => {
     table.appendChild(tableBody)
 }
 
-
-
-
 const sortByScores = (scores) => {
     const scoreBoard = {}
 
@@ -75,6 +151,12 @@ const sortByScores = (scores) => {
     renderRows(scoreBoard)
 }
 
-renderTable()
-fetchScores()
-    .then(sortByScores)
+const renderScoreBoard = () => {
+    clearScoreBoard()
+    renderTable()
+    fetchScores()
+        .then(sortByScores)
+}
+
+renderForm()
+
