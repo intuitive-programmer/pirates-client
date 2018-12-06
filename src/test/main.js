@@ -248,7 +248,7 @@ const DuelScene = new Phaser.Class({
 
 const config = {
   type: Phaser.AUTO,
-  parent: 'container',
+  parent: 'canvas',
   width: 480,
   height: 480,
   zoom: 2,
