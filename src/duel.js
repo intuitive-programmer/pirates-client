@@ -8,6 +8,7 @@ let pirateBotIdle
 let pirateBotShoot
 let pirateBotDead
 
+
 class DuelScene extends Phaser.Scene {
   constructor() {
     super({ key: 'DuelScene', active: true })
@@ -41,7 +42,6 @@ class DuelScene extends Phaser.Scene {
     // add sprites to canvas
 
     let duelScene = this.scene.get('DuelShowdown')
-
     
     this.pirateCaptain = this.physics.add.sprite(300, 455, 'pirate-captain')
     this.pirateBot = this.physics.add.sprite(1300, 450, 'pirate-woman')
@@ -144,7 +144,6 @@ class DuelScene extends Phaser.Scene {
     } else if(pirateCaptainShoot) {
       this.pirateCaptain.body.setVelocity(0)
       this.pirateCaptain.anims.play('shoot', true)
-      pirateCaptainShoot = !pirateCaptainShoot
     } else if(pirateCaptainDead) {
       this.pirateCaptain.body.setVelocity(0)
       this.pirateCaptain.anims.play('dead', true)
@@ -228,7 +227,7 @@ class DuelOpeningScene extends Phaser.Scene {
       delay: 1000,
       callback: this.updatePacesAndReadyCard,
       callbackScope: this,
-      repeat: 5
+      repeat: 4
     })
   }
   
@@ -237,10 +236,7 @@ class DuelOpeningScene extends Phaser.Scene {
     if(this.paces > 0) {
       this.pacesAndReadyCard.setText(`        ${this.paces}...`)
       this.paces--
-    } else if(this.paces === 0) {
-      this.pacesAndReadyCard.setText('Turn & Face...')
-      this.paces--
-    } else if(this.paces === -1){
+    } else if(this.paces === 0){
       this.pacesAndReadyCard.setText('    Ready...')
       this.paces--
     } else {
@@ -289,7 +285,7 @@ class DuelShowdown extends Phaser.Scene {
       startAt: 1000
     })
 
-    this.reactionTimer
+    // this.reactionTimer
     this.botReactionTime = (Math.random() * 300) + 400
   }
 
@@ -317,98 +313,114 @@ class DuelShowdown extends Phaser.Scene {
   }
 
   duelOutcome() {
-    pirateBotIdle = !pirateBotIdle
-    pirateBotShoot = !pirateBotShoot
+    pirateBotIdle = false
+    pirateBotShoot = true
+    console.log('duel outcome',pirateCaptainShoot)
 
     if(!pirateCaptainShoot) {
-      pirateCaptainIdle =!pirateCaptainIdle
-      pirateCaptainDead = !pirateCaptainDead
+      pirateCaptainIdle = false
+      pirateCaptainDead = true
+      console.log("captain ded")
 
       this.input.off('pointerup', this.reactionSpeed, this)
       this.drawCard.setText('')
 
-      this.scorecardBit()
+      this.scoreboardDelay = this.time.addEvent({
+        delay: 3000,
+        callbackscope: this,
+        callback: this.scoreboardBit
+      })
     }
   }
+  
+  
+  scoreboardBit() {
+    renderForm()
+    const canvas = document.querySelector('#canvas')
+    canvas.style.display = 'none'
 
+    const scoreboard = document.querySelector('#scoreboard')
+    scoreboard.style.display = 'block'
+  }
+  
+  
+  reactionSpeed() {
+    this.drawCard.setText('')
+    
+    if(!pirateBotShoot) {
+      pirateCaptainIdle = false
+      pirateCaptainShoot = true
+      pirateBotDead = true
+      console.log('here',pirateCaptainShoot)
+
+      CURRENTSCORE += 10
+      this.time.addEvent({
+        delay: 2000,
+        callback: this.restartDuel,
+        callbackScope: this
+      })
+    }
+  }
+  
+  
+  restartDuel() {
+    let restartDuelScene = this.scene.get('DuelOpeningScene')
+    console.log('2here',pirateCaptainShoot)
+
+    this.drawCard.setText('')
+    pirateCaptainDead = false
+    pirateCaptainShoot = false
+    pirateCaptainIdle = true
+    pirateBotIdle = true
+
+    console.log('3here',pirateCaptainShoot)
+
+    this.input.off('pointerup', this.reactionSpeed, this)
+
+    restartDuelScene.scene.restart()
+
+  }
+  
   startReactionTimer() {
     this.reactionTimer = this.time.addEvent({
       delay: 5000,
       callbackScope: this,
     })
   }
-  
-  reactionSpeed() {
-    this.drawCard.setText('')
-
-    if(!pirateBotShoot) {
-      pirateCaptainIdle = false
-      pirateCaptainShoot = !pirateCaptainShoot
-      pirateBotDead = !pirateBotDead
-
-      CURRENTSCORE += 10
-
-      this.restartDuel()
-    }
-    
-    let reactionSpeed = this.reactionTimer.getElapsed()
-    // this.duelOutcome(reactionSpeed)
-  }
-
-  scorecardBit() {
-    renderForm()
-  }
-
-  restartDuel() {
-    let restartDuelScene = this.scene.get('DuelOpeningScene')
-    this.time.addEvent({
-      delay: 1500,
-      callback: () => {
-        this.drawCard.setText('')
-        pirateCaptainDead = false
-        pirateCaptainShoot = false
-        pirateCaptainIdle = true
-        pirateBotIdle = !pirateBotIdle
-        restartDuelScene.scene.restart()
-      },
-      callbackScope: this
-    })
-  }
-
   // duelOutcome (reactionSpeed) {
-  //   if(this.botReactionTime < reactionSpeed) {
-  //     this.input.off('pointerup', this.reactionSpeed, this)
-  //     this.drawCard.setText("  U DED!")
-  //     pirateBotIdle = !pirateBotIdle
-
-  //     pirateCaptainDead = !pirateCaptainDead
-
-
-  //     this.time.addEvent({
-  //       delay: 1500,
-  //       callback: this.drawCard.setText(''),
-  //       callbackScope: this
-  //     })
-  //     renderForm()
-  //   } else {
-  //     this.input.off('pointerup', this.reactionSpeed, this)
-  //     this.drawCard.setText('U MED IT!')
-  //     pirateBotIdle = !pirateBotIdle
-  //     pirateBotDead = !pirateBotDead
+    //   if(this.botReactionTime < reactionSpeed) {
+      //     this.input.off('pointerup', this.reactionSpeed, this)
+      //     this.drawCard.setText("  U DED!")
+      //     pirateBotIdle = !pirateBotIdle
       
-  //     CURRENTSCORE += 10
+      //     pirateCaptainDead = !pirateCaptainDead
       
-  //     let restartDuelScene = this.scene.get('DuelOpeningScene')
       
-  //     this.time.addEvent({
-  //       delay: 1500,
-  //       callback: () => {
-  //         this.drawCard.setText('')
-  //         pirateCaptainIdle = !pirateCaptainIdle
-  //         pirateBotIdle = !pirateBotIdle
-  //         restartDuelScene.scene.restart()
-  //       },
-  //       callbackScope: this
+      //     this.time.addEvent({
+        //       delay: 1500,
+        //       callback: this.drawCard.setText(''),
+        //       callbackScope: this
+        //     })
+        //     renderForm()
+        //   } else {
+          //     this.input.off('pointerup', this.reactionSpeed, this)
+          //     this.drawCard.setText('U MED IT!')
+          //     pirateBotIdle = !pirateBotIdle
+          //     pirateBotDead = !pirateBotDead
+          
+          //     CURRENTSCORE += 10
+          
+          //     let restartDuelScene = this.scene.get('DuelOpeningScene')
+          
+          //     this.time.addEvent({
+            //       delay: 1500,
+            //       callback: () => {
+              //         this.drawCard.setText('')
+              //         pirateCaptainIdle = !pirateCaptainIdle
+              //         pirateBotIdle = !pirateBotIdle
+              //         restartDuelScene.scene.restart()
+              //       },
+              //       callbackScope: this
   //     })
   //   }
   // }
