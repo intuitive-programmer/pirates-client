@@ -1,3 +1,13 @@
+let cursors;
+
+let pirateCaptainIdle
+let pirateCaptainShoot
+let pirateCaptainDead
+
+let pirateBotIdle
+let pirateBotShoot
+let pirateBotDead
+
 class DuelScene extends Phaser.Scene {
   constructor() {
     super({ key: 'DuelScene', active: true })
@@ -5,30 +15,141 @@ class DuelScene extends Phaser.Scene {
 
   preload() {
     // add map
-    this.load.image('pirate-duel-64x64', './assets/tilemaps/tiles/pirates_tiles_sheet.png')
-    this.load.tilemapTiledJSON('pirate-duel-layers-map', 'assets/maps/pirate-duel-layers-map.json')
+    this.load.image("tiles", "./assets/tilesets/pirates_tiles_sheet.png")
+    this.load.tilemapTiledJSON("map", "./assets/tilemaps/pirate-duel-layers-map.json")
     // add sprites
+
+    //load pirate captain
+    this.load.spritesheet('pirate-captain', 'assets/spritesheet/pirate-captain/pirate-captain-idle-shoot-large.png', { frameWidth: 204, frameHeight: 192 })
+    this.load.spritesheet('pirate-captain-dead', 'assets/spritesheet/pirate-captain/pirate-captain-dead-large.png', { frameWidth: 236.6, frameHeight: 192 })
+
+    //load pirate woman
+    this.load.spritesheet('pirate-woman', 'assets/spritesheet/pirate-woman/big_piratewoman_idle_shoot.png', { frameWidth: 174.7, frameHeight: 192 })
+    this.load.spritesheet('pirate-woman-dead', 'assets/spritesheet/pirate-woman/big_piratewoman_dead.png', { frameWidth: 231.7, frameHeight: 192 })
+
   }
 
   create() {
     // add map to canvas
-    let duelMap = this.make.tilemap({ key: 'pirate-duel-layers-map'})
-    let duelTiles = duelMap.addTilesetImage('pirate-duel-64x64')
+    const map = this.make.tilemap({ key: "map" })
+    const tileset = map.addTilesetImage("pirates_tiles_sheet.png", "tiles");
 
-    const seaLayer = duelMap.createStaticLayer('Sea', duelTiles, 0, 0)
-    const beachLayer = duelMap.createStaticLayer('Beach', duelTiles, 0, 0)
-    const armamentsLayer = duelMap.createStaticLayer('Armaments', duelTiles, 0, 0)
-    const foliageLayer = duelMap.createStaticLayer('Foliage', duelTiles, 0, 0)
+    const seaLayer = map.createStaticLayer('Sea', tileset, 0, 0)
+    const beachLayer = map.createStaticLayer('Beach', tileset, 0, 0)
+    const armamentsLayer = map.createStaticLayer('Armaments', tileset, 0, 0)
+    const foliageLayer = map.createStaticLayer('Foliage', tileset, 0, 0)
     // add sprites to canvas
+
+    let duelScene = this.scene.get('DuelShowdown')
+
+    
+    this.pirateCaptain = this.physics.add.sprite(300, 455, 'pirate-captain')
+    this.pirateBot = this.physics.add.sprite(1300, 450, 'pirate-woman')
+    this.pirateBot.flipX = true
+    // *** BOT ANIMATIONS ***
+
+    pirateBotIdle = true
+    pirateBotShoot = false
+    pirateBotDead = false
+
+    this.anims.create({
+      key: 'bot-idle',
+      frames: this.anims.generateFrameNumbers('pirate-woman', { start: 0, end: 8 }),
+      frameRate: 10,
+      repeat: -1
+    }) 
+    this.anims.create({
+      key: 'bot-shoot',
+      frames: this.anims.generateFrameNumbers('pirate-woman', { start: 9, end: 16 }),
+      frameRate: 10,
+      repeat: 0
+    }) 
+    this.anims.create({
+      key: 'bot-dead',
+      frames: this.anims.generateFrameNumbers('pirate-woman-dead', { start: 0, end: 11 }),
+      frameRate: 10,
+      repeat: 0
+    }) 
+
+   
+
+
+    //*** CAPTAIN ANIMATIONS ***
+    pirateCaptainIdle = true
+
+    // duelScene.events.on('idle-anim', () => {
+    //   pirateCaptainIdle = !pirateCaptainIdle
+    //   console.log('idle')
+    // }, this)
+    
+    this.anims.create({
+      key: 'idle',
+      frames: this.anims.generateFrameNumbers('pirate-captain', { start: 0, end: 9 }),
+      frameRate: 10,
+      repeat: -1
+    })
+
+    pirateCaptainShoot = false
+
+    // duelScene.events.on('shoot-anim', () => {
+    //   pirateCaptainShoot = !pirateCaptainShoot
+    //   console.log('shoot')
+    // }, this)
+
+    this.anims.create({
+      key: 'shoot',
+      frames: this.anims.generateFrameNumbers('pirate-captain', { start: 10, end: 17 }),
+      frameRate: 10,
+      repeat: 0
+    })
+
+    pirateCaptainDead = false
+
+    // duelScene.events.on('dead-anim', () => {
+    //   pirateCaptainDead = !pirateCaptainDead
+    //   console.log('dead')  
+    // }, this)
+
+    this.anims.create({
+      key: 'dead',
+      frames: this.anims.generateFrameNumbers('pirate-captain-dead', { start: 0, end: 11 }),
+      frameRate: 10,
+      repeat: 0
+    })
+
     this.delayOpeningScene = this.time.addEvent({
-      delay: 2000,
+      delay: 1,
       callback: this.startOpeningScene,
       callbackScope: this
     })
   }
 
   update() {
-    // add animations to sprites
+    if(pirateBotIdle) {
+      this.pirateBot.body.setVelocity(0)
+      this.pirateBot.anims.play('bot-idle', true)
+    } else if(pirateBotShoot) {
+      this.pirateBot.body.setVelocity(0)
+      this.pirateBot.anims.play('bot-shoot', true)
+      pirateBotShoot = !pirateBotShoot
+    } else if(pirateBotDead) {
+      this.pirateBot.body.setVelocity(0)
+      this.pirateBot.anims.play('bot-dead', true)
+      pirateBotDead = !pirateBotDead
+    }
+
+    if(pirateCaptainIdle) {
+      this.pirateCaptain.body.setVelocity(0)
+      this.pirateCaptain.anims.play('idle', true)
+    } else if(pirateCaptainShoot) {
+      this.pirateCaptain.body.setVelocity(0)
+      this.pirateCaptain.anims.play('shoot', true)
+      pirateCaptainShoot = !pirateCaptainShoot
+    } else if(pirateCaptainDead) {
+      this.pirateCaptain.body.setVelocity(0)
+      this.pirateCaptain.anims.play('dead', true)
+      pirateCaptainDead = !pirateCaptainDead
+    }
   }
 
   startOpeningScene() {
@@ -44,15 +165,15 @@ class DuelOpeningScene extends Phaser.Scene {
   create() {    
     let topBar = this.add.graphics()
     topBar.fillStyle('#333300', 1)
-    topBar.fillRect(0, 0, 800, 125)
+    topBar.fillRect(0, 0, 1600, 240)
     
     let bottomBar = this.add.graphics()
     bottomBar.fillStyle('#333300', 1)
-    bottomBar.fillRect(0, 475, 800, 125)
+    bottomBar.fillRect(0, 720, 1600, 240)
 
     let duelText = {
-      x: 160,
-      y: 40,
+      x: 600,
+      y: 100,
       text: 'Click to Start!',
       style: {
         fontSize: '56px',
@@ -73,8 +194,8 @@ class DuelOpeningScene extends Phaser.Scene {
     this.paces = 3
 
     let instructionText = {
-      x: 70,
-      y: 525,
+      x: 500,
+      y: 825,
       text: 'You need to kill and kill good... Ya kno!',
       style: {
         fontSize: '32px',
@@ -99,10 +220,10 @@ class DuelOpeningScene extends Phaser.Scene {
     this.input.off('pointerup', this.startTimers, this)
     this.startPacesAndReadyTimer()
   }
-
+  
   startPacesAndReadyTimer() {
     this.pacesAndReadyCard.setText('')
-
+    
     this.time.addEvent({
       delay: 1000,
       callback: this.updatePacesAndReadyCard,
@@ -140,11 +261,11 @@ class DuelShowdown extends Phaser.Scene {
 
   create() {
     let drawText = {
-      x: 150,
-      y: 250,
+      x: 575,
+      y: 400,
       text: '',
       style: {
-        fontSize: '80px',
+        fontSize: '96px',
         fontFamily: 'Arial',
         color: '#ffffff',
         align: 'center',
@@ -173,13 +294,43 @@ class DuelShowdown extends Phaser.Scene {
   }
 
   updateDrawCard() {
-    this.startReactionTimer()
+    // this.startReactionTimer()
+    // this.startBotReactionTimer()
 
+    this.startReactionTimers()
     this.drawCard.setText('!!DRAW!!')
 
     this.input.on('pointerup', this.reactionSpeed, this)
   }
+
+  startReactionTimers() {
+    this.startBotReactionTimer()
+    this.startReactionTimer()
+  }
   
+  startBotReactionTimer() {
+    this.botReactionTimer = this.time.addEvent({
+      delay: this.botReactionTime,
+      callbackScope: this,
+      callback: this.duelOutcome
+    })
+  }
+
+  duelOutcome() {
+    pirateBotIdle = !pirateBotIdle
+    pirateBotShoot = !pirateBotShoot
+
+    if(!pirateCaptainShoot) {
+      pirateCaptainIdle =!pirateCaptainIdle
+      pirateCaptainDead = !pirateCaptainDead
+
+      this.input.off('pointerup', this.reactionSpeed, this)
+      this.drawCard.setText('')
+
+      this.scorecardBit()
+    }
+  }
+
   startReactionTimer() {
     this.reactionTimer = this.time.addEvent({
       delay: 5000,
@@ -189,48 +340,77 @@ class DuelShowdown extends Phaser.Scene {
   
   reactionSpeed() {
     this.drawCard.setText('')
+
+    if(!pirateBotShoot) {
+      pirateCaptainIdle = false
+      pirateCaptainShoot = !pirateCaptainShoot
+      pirateBotDead = !pirateBotDead
+
+      CURRENTSCORE += 10
+
+      this.restartDuel()
+    }
     
     let reactionSpeed = this.reactionTimer.getElapsed()
-    this.duelOutcome(reactionSpeed)
+    // this.duelOutcome(reactionSpeed)
   }
 
-  duelOutcome (reactionSpeed) {
-    if(this.botReactionTime < reactionSpeed) {
-      this.drawCard.setText("  U DED!")
-      console.log(CURRENTSCORE)
-      this.input.off('pointerup', this.reactionSpeed, this)
-
-      this.time.addEvent({
-        delay: 1500,
-        callback: this.drawCard.setText(''),
-        callbackScope: this
-      })
-      renderForm()
-    } else {
-      this.drawCard.setText('U MED IT!')
-      CURRENTSCORE += 10
-      console.log(CURRENTSCORE)
-      this.input.off('pointerup', this.reactionSpeed, this)
-      
-      let restartDuelScene = this.scene.get('DuelOpeningScene')
-      
-      this.time.addEvent({
-        delay: 1500,
-        callback: () => {
-          this.drawCard.setText('')
-          restartDuelScene.scene.restart()
-        },
-        callbackScope: this
-      })
-    }
+  scorecardBit() {
+    renderForm()
   }
+
+  restartDuel() {
+    let restartDuelScene = this.scene.get('DuelOpeningScene')
+    this.time.addEvent({
+      delay: 1500,
+      callback: () => {
+        this.drawCard.setText('')
+        pirateCaptainDead = false
+        pirateCaptainShoot = false
+        pirateCaptainIdle = true
+        pirateBotIdle = !pirateBotIdle
+        restartDuelScene.scene.restart()
+      },
+      callbackScope: this
+    })
+  }
+
+  // duelOutcome (reactionSpeed) {
+  //   if(this.botReactionTime < reactionSpeed) {
+  //     this.input.off('pointerup', this.reactionSpeed, this)
+  //     this.drawCard.setText("  U DED!")
+  //     pirateBotIdle = !pirateBotIdle
+
+  //     pirateCaptainDead = !pirateCaptainDead
+
+
+  //     this.time.addEvent({
+  //       delay: 1500,
+  //       callback: this.drawCard.setText(''),
+  //       callbackScope: this
+  //     })
+  //     renderForm()
+  //   } else {
+  //     this.input.off('pointerup', this.reactionSpeed, this)
+  //     this.drawCard.setText('U MED IT!')
+  //     pirateBotIdle = !pirateBotIdle
+  //     pirateBotDead = !pirateBotDead
+      
+  //     CURRENTSCORE += 10
+      
+  //     let restartDuelScene = this.scene.get('DuelOpeningScene')
+      
+  //     this.time.addEvent({
+  //       delay: 1500,
+  //       callback: () => {
+  //         this.drawCard.setText('')
+  //         pirateCaptainIdle = !pirateCaptainIdle
+  //         pirateBotIdle = !pirateBotIdle
+  //         restartDuelScene.scene.restart()
+  //       },
+  //       callbackScope: this
+  //     })
+  //   }
+  // }
 } 
 
-class ScoreboardScene extends Phaser.Scene {
-
-  constructor() {
-    super({ key: 'ScoreboardScene', active: false })
-  }
-
-
-}

@@ -4,6 +4,12 @@ let config = {
   height: 960,
   backgroundColor: '#558000',
   parent: 'canvas',
+  physics: {
+    default: "arcade",
+    arcade: {
+      gravity: { y: 0 }
+    }
+  },
   scene: [
     DuelScene,
     DuelOpeningScene,
