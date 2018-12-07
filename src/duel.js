@@ -116,12 +116,6 @@ class DuelScene extends Phaser.Scene {
       frameRate: 10,
       repeat: 0
     })
-
-    this.delayOpeningScene = this.time.addEvent({
-      delay: 1,
-      callback: this.startOpeningScene,
-      callbackScope: this
-    })
   }
 
   update() {
@@ -150,15 +144,11 @@ class DuelScene extends Phaser.Scene {
       pirateCaptainDead = !pirateCaptainDead
     }
   }
-
-  startOpeningScene() {
-    this.scene.launch('DuelOpeningScene')
-  }
 }
 
 class DuelOpeningScene extends Phaser.Scene {
   constructor() {
-    super({ key: 'DuelOpeningScene', active: false })
+    super({ key: 'DuelOpeningScene', active: true })
   }
 
   create() {    
@@ -193,9 +183,9 @@ class DuelOpeningScene extends Phaser.Scene {
     this.paces = 3
 
     let instructionText = {
-      x: 500,
-      y: 825,
-      text: 'You need to kill and kill good... Ya kno!',
+      x: 375,
+      y: 755,
+      text: 'Behold! A mutiny! \nThe Quarter Mistress challenges YOU, the Captain. \nPrepare youself for a showdown.\nWhen you see the word "DRAW" click to fire your pistol. \nYou have one bullet, so make it count!',
       style: {
         fontSize: '32px',
         fontFamily: 'Arial',

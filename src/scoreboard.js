@@ -45,7 +45,7 @@ const renderForm = () => {
     scoreForm.id = 'scoreForm'
 
     const scoreFormContent = document.createElement('h3')
-    scoreFormContent.innerHTML = CURRENTSCORE
+    scoreFormContent.innerHTML = `Final score: ${CURRENTSCORE}`
 
     const cardForm = document.createElement('form')
     cardForm.id = 'cardForm'
@@ -130,6 +130,7 @@ const renderRow = (user, scoreBoard) => {
             <td>${scoreBoard[user]}</td>
         </tr>
     `
+    
     const table = document.querySelector('#table')
     table.appendChild(tableBody)
 }
